@@ -154,7 +154,7 @@ def build_vgg():
     return model
 
 
-def build_adversarial_model(generator, discriminator, vgg, low_resolution_shape, high_resolution_shape, common_optimizer):
+def build_adversarial_model(generator, discriminator, vgg, low_resolution_shape, high_resolution_shape):
     input_high_resolution = layers.Input(shape=high_resolution_shape)
     input_low_resolution = layers.Input(shape=low_resolution_shape)
 
@@ -172,7 +172,5 @@ def build_adversarial_model(generator, discriminator, vgg, low_resolution_shape,
 
     # Create and compile an adversarial model combining
     adversarial_model = keras.Model([input_low_resolution, input_high_resolution], [probs, features])
-    adversarial_model.compile(loss=['binary_crossentropy', 'mse'], loss_weights=[1e-3, 1],
-                              optimizer=common_optimizer)
 
     return adversarial_model
