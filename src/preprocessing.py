@@ -115,4 +115,4 @@ def load_images(image_data_path):
 
     hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs, low_res_imgs)
 
-    return hr_train, hr_test, lr_train, lr_test
+    return hr_train, hr_val, hr_test, lr_train, lr_val, lr_test
