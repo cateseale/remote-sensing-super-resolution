@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import random
 import numpy as np
 import earthpy as ep
 import tensorflow as tf
@@ -49,7 +50,10 @@ def build_networks():
 
     # Build the adversarial network
     adversarial_model = build_adversarial_model(generator, discriminator, vgg, low_resolution_shape,
-                                                high_resolution_shape, common_optimizer)
+                                                high_resolution_shape)
+
+    adversarial_model.compile(loss=['binary_crossentropy', 'mse'], loss_weights=[1e-3, 1],
+                          optimizer=common_optimizer)
 
     return generator, discriminator, vgg, adversarial_model
 
@@ -58,44 +62,65 @@ def train(X_train, y_train, batch_size, epochs, export_path, export_sample_every
 
     generator, discriminator, vgg, adversarial_model = build_networks()
 
+
+
     for epoch in range(epochs):
         print("Epoch:{}".format(epoch))
 
-        """
-        Train the discriminator network
-        """
+        indexes = [i for i in range(0, X_train.shape[0])]
+        random.shuffle(indexes)
 
-        # Sample a batch of images
-        high_resolution_images, low_resolution_images = X_train, y_train
+        batches = [indexes[i * batch_size:(i + 1) * batch_size] for i in range((len(indexes) + batch_size - 1) // batch_size)]
 
-        # # Sample images and their conditioning counterparts
-        # imgs_hr, imgs_lr = data_loader.load_data(batch_size)
+        for batch in batches:
 
-        # Generate high resolution images
-        generated_high_resolution_images = generator.predict(low_resolution_images)
+            high_res_imgs_batch = []
+            low_res_imgs_batch = []
 
-        real_labels = np.ones((batch_size, 1))
-        fake_labels = np.zeros((batch_size, 1))
+            for i in batch:
+                high_im = X_train[i]
+                high_res_imgs_batch.append(high_im)
+                low_im = y_train[i]
+                low_res_imgs_batch.append(low_im)
 
-        # Train the discriminator network on real and fake images
-        d_loss_real = discriminator.train_on_batch(high_resolution_images, real_labels)
-        d_loss_fake = discriminator.train_on_batch(generated_high_resolution_images, fake_labels)
-        d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+            X_train_batch = np.array(high_res_imgs_batch)
+            y_train_batch = np.array(low_res_imgs_batch)
 
-        print("d_loss:", d_loss)
+            """
+            Train the discriminator network
+            """
 
-        """
-        Train the generator network
-        """
+            # Sample a batch of images
+            high_resolution_images, low_resolution_images = X_train_batch, y_train_batch
 
-        # Extract features
-        image_features = vgg.predict(high_resolution_images)
+            # # Sample images and their conditioning counterparts
+            # imgs_hr, imgs_lr = data_loader.load_data(batch_size)
 
-        # Train the generator network
-        g_loss = adversarial_model.train_on_batch([low_resolution_images, high_resolution_images],
-                                                  [real_labels, image_features])
+            # Generate high resolution images
+            generated_high_resolution_images = generator.predict(low_resolution_images)
 
-        print("g_loss:", g_loss)
+            real_labels = np.ones((batch_size, 1))
+            fake_labels = np.zeros((batch_size, 1))
+
+            # Train the discriminator network on real and fake images
+            d_loss_real = discriminator.train_on_batch(high_resolution_images, real_labels)
+            d_loss_fake = discriminator.train_on_batch(generated_high_resolution_images, fake_labels)
+            d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
+
+            print("d_loss:", d_loss)
+
+            """
+            Train the generator network
+            """
+
+            # Extract features
+            image_features = vgg.predict(high_resolution_images)
+
+            # Train the generator network
+            g_loss = adversarial_model.train_on_batch([low_resolution_images, high_resolution_images],
+                                                      [real_labels, image_features])
+
+            print("g_loss:", g_loss)
 
 
         # Sample and save images after every x epochs
@@ -109,6 +134,6 @@ def train(X_train, y_train, batch_size, epochs, export_path, export_sample_every
 
 
         # Save models
-        generator.save_weights(os.path.join(export_path, 'models', '/generator.h5'))
+        generator.save_weights(os.path.join(export_path, 'models', 'generator.h5'))
         discriminator.save_weights(os.path.join(export_path, 'models', 'discriminator.h5'))
 
