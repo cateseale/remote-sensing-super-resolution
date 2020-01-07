@@ -10,7 +10,7 @@ from skimage.exposure import rescale_intensity
 from sklearn.model_selection import train_test_split
 
 
-def _split_train_test_val(high_resolution_images, low_resolution_images, split=[0.8, 0.1, 0.1]):
+def _split_train_test_val(high_resolution_images, low_resolution_images):
 
     X_train, X_test, y_train, y_test = train_test_split(high_resolution_images, low_resolution_images, test_size=0.2,
                                                         random_state=42)
@@ -115,4 +115,4 @@ def load_images(image_data_path):
 
     hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs, low_res_imgs)
 
-    return hr_train, hr_val, hr_test, lr_train, lr_val, lr_test
+    return lr_train, lr_val, lr_test, hr_train, hr_val, hr_test
