@@ -6,6 +6,7 @@ from utils import plot_generated_images, save_images
 from tqdm import tqdm
 from tensorflow import keras
 from model import VggLoss, get_optimizer, Generator, Discriminator
+from mangrove_model import MangroveLoss
 
 
 
@@ -23,7 +24,7 @@ def get_gan_network(discriminator, shape, generator, optimizer, vgg_loss):
     return gan
 
 
-def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir):
+def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir, loss_model):
 
           # input_dir, number_of_images, train_test_ratio):
     # x_train_lr, x_train_hr, x_test_lr, x_test_hr = Utils.load_training_data(input_dir, '.tif', number_of_images,
@@ -32,7 +33,11 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
     model_save_dir = os.path.join(data_dir, 'models')
     output_dir = os.path.join(data_dir, 'results')
 
-    loss = VggLoss(output_shape)
+    if loss_model == 'vgg':
+        loss = VggLoss(output_shape)
+
+    elif loss_model == 'mangrove':
+        loss = MangroveLoss(output_shape)
 
     batch_count = int(X_train.shape[0] / batch_size)
 
@@ -40,10 +45,10 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
     discriminator = Discriminator(output_shape).discriminator()
 
     optimizer = get_optimizer()
-    generator.compile(loss=loss.vgg_loss, optimizer=optimizer)
+    generator.compile(loss=loss.model_loss, optimizer=optimizer)
     discriminator.compile(loss="binary_crossentropy", optimizer=optimizer)
 
-    gan = get_gan_network(discriminator, input_shape, generator, optimizer, loss.vgg_loss)
+    gan = get_gan_network(discriminator, input_shape, generator, optimizer, loss.model_loss)
 
     loss_file = open(model_save_dir + 'losses.txt', 'w+')
     loss_file.close()
