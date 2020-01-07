@@ -1,139 +1,91 @@
 #!/usr/bin/env python3
 
 import os
-import random
 import numpy as np
-import earthpy as ep
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from model_srgan import build_vgg, build_discriminator, build_generator, build_adversarial_model
+from utils import plot_generated_images, save_images
+from tqdm import tqdm
+from tensorflow import keras
+from model import VggLoss, get_optimizer, Generator, Discriminator
 
 
 
-def save_images(low_resolution_image, original_image, generated_image, path):
-    """
-    Save images in a single figure
-    """
-    fig = plt.figure(figsize=(20,20))
-    ax1 = fig.add_subplot(1, 3, 1)
-    ep.plot_rgb(np.moveaxis(low_resolution_image, -1, 0), ax=ax1, title='Low resolution image')
+# Combined network
+def get_gan_network(discriminator, shape, generator, optimizer, vgg_loss):
+    discriminator.trainable = False
+    gan_input = keras.Input(shape=shape)
+    x = generator(gan_input)
+    gan_output = discriminator(x)
+    gan = keras.Model(inputs=gan_input, outputs=[x,gan_output])
+    gan.compile(loss=[vgg_loss, "binary_crossentropy"],
+                loss_weights=[1., 1e-3],
+                optimizer=optimizer)
 
-    ax2 = fig.add_subplot(1, 3, 2)
-    ep.plot_rgb(np.moveaxis(original_image, -1, 0), ax=ax2, title='High resolution image')
-
-    ax3 = fig.add_subplot(1, 3, 3)
-    ep.plot_rgb(np.moveaxis(generated_image, -1, 0), ax=ax3, title='Super-resolution image')
-
-    plt.savefig(path)
+    return gan
 
 
-def build_networks():
+def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir):
 
-    # Shape of low-resolution and high-resolution images
-    low_resolution_shape = (64, 64, 3)
-    high_resolution_shape = (256, 256, 3)
+          # input_dir, number_of_images, train_test_ratio):
+    # x_train_lr, x_train_hr, x_test_lr, x_test_hr = Utils.load_training_data(input_dir, '.tif', number_of_images,
+    #                                                                         train_test_ratio)
 
-    # Common optimizer for all networks
-    common_optimizer = tf.keras.optimizers.Adam(0.0002, 0.5)
+    model_save_dir = os.path.join(data_dir, 'models')
+    output_dir = os.path.join(data_dir, 'results')
 
-    # Build and compile VGG19 network to extract features
-    vgg = build_vgg()
-    vgg.trainable = False
-    vgg.compile(loss='mse', optimizer=common_optimizer, metrics=['accuracy'])
+    loss = VggLoss(output_shape)
 
-    # Build and compile the discriminator
-    discriminator = build_discriminator()
-    discriminator.compile(loss='mse', optimizer=common_optimizer, metrics=['accuracy'])
+    batch_count = int(X_train.shape[0] / batch_size)
 
-    # Build the generator network
-    generator = build_generator()
+    generator = Generator(input_shape).generator()
+    discriminator = Discriminator(output_shape).discriminator()
 
-    # Build the adversarial network
-    adversarial_model = build_adversarial_model(generator, discriminator, vgg, low_resolution_shape,
-                                                high_resolution_shape)
+    optimizer = get_optimizer()
+    generator.compile(loss=loss.vgg_loss, optimizer=optimizer)
+    discriminator.compile(loss="binary_crossentropy", optimizer=optimizer)
 
-    adversarial_model.compile(loss=['binary_crossentropy', 'mse'], loss_weights=[1e-3, 1],
-                          optimizer=common_optimizer)
+    gan = get_gan_network(discriminator, input_shape, generator, optimizer, loss.vgg_loss)
 
-    return generator, discriminator, vgg, adversarial_model
+    loss_file = open(model_save_dir + 'losses.txt', 'w+')
+    loss_file.close()
 
+    for e in range(1, epochs + 1):
+        print('-' * 15, 'Epoch %d' % e, '-' * 15)
+        for _ in tqdm(range(batch_count)):
+            rand_nums = np.random.randint(0, y_train.shape[0], size=batch_size)
 
-def train(X_train, y_train, batch_size, epochs, export_path, export_sample_every=10):
+            image_batch_hr = y_train[rand_nums]
+            image_batch_lr = X_train[rand_nums]
+            generated_images_sr = generator.predict(image_batch_lr)
 
-    generator, discriminator, vgg, adversarial_model = build_networks()
+            real_data_Y = np.ones(batch_size) - np.random.random_sample(batch_size) * 0.2
+            fake_data_Y = np.random.random_sample(batch_size) * 0.2
 
+            discriminator.trainable = True
 
+            d_loss_real = discriminator.train_on_batch(image_batch_hr, real_data_Y)
+            d_loss_fake = discriminator.train_on_batch(generated_images_sr, fake_data_Y)
+            discriminator_loss = 0.5 * np.add(d_loss_fake, d_loss_real)
 
-    for epoch in range(epochs):
-        print("Epoch:{}".format(epoch))
+            rand_nums = np.random.randint(0, y_train.shape[0], size=batch_size)
+            image_batch_hr = y_train[rand_nums]
+            image_batch_lr = X_train[rand_nums]
 
-        indexes = [i for i in range(0, X_train.shape[0])]
-        random.shuffle(indexes)
+            gan_Y = np.ones(batch_size) - np.random.random_sample(batch_size) * 0.2
+            discriminator.trainable = False
+            gan_loss = gan.train_on_batch(image_batch_lr, [image_batch_hr, gan_Y])
 
-        batches = [indexes[i * batch_size:(i + 1) * batch_size] for i in range((len(indexes) + batch_size - 1) // batch_size)]
+            print("discriminator_loss : %f" % discriminator_loss)
+            print("gan_loss :", gan_loss)
 
-        for batch in batches:
+            gan_loss = str(gan_loss)
 
-            high_res_imgs_batch = []
-            low_res_imgs_batch = []
+            loss_file = open(model_save_dir + 'losses.txt', 'a')
+            loss_file.write('epoch%d : gan_loss = %s ; discriminator_loss = %f\n' % (e, gan_loss, discriminator_loss))
+            loss_file.close()
 
-            for i in batch:
-                high_im = X_train[i]
-                high_res_imgs_batch.append(high_im)
-                low_im = y_train[i]
-                low_res_imgs_batch.append(low_im)
-
-            X_train_batch = np.array(high_res_imgs_batch)
-            y_train_batch = np.array(low_res_imgs_batch)
-
-            """
-            Train the discriminator network
-            """
-
-            # Sample a batch of images
-            high_resolution_images, low_resolution_images = X_train_batch, y_train_batch
-
-            # # Sample images and their conditioning counterparts
-            # imgs_hr, imgs_lr = data_loader.load_data(batch_size)
-
-            # Generate high resolution images
-            generated_high_resolution_images = generator.predict(low_resolution_images)
-
-            real_labels = np.ones((batch_size, 1))
-            fake_labels = np.zeros((batch_size, 1))
-
-            # Train the discriminator network on real and fake images
-            d_loss_real = discriminator.train_on_batch(high_resolution_images, real_labels)
-            d_loss_fake = discriminator.train_on_batch(generated_high_resolution_images, fake_labels)
-            d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
-
-            print("d_loss:", d_loss)
-
-            """
-            Train the generator network
-            """
-
-            # Extract features
-            image_features = vgg.predict(high_resolution_images)
-
-            # Train the generator network
-            g_loss = adversarial_model.train_on_batch([low_resolution_images, high_resolution_images],
-                                                      [real_labels, image_features])
-
-            print("g_loss:", g_loss)
-
-
-        # Sample and save images after every x epochs
-        if epoch % export_sample_every == 0:
-
-            generated_images = generator.predict_on_batch(low_resolution_images)
-
-            for index, img in enumerate(generated_images):
-                save_images(low_resolution_images[index], high_resolution_images[index], img,
-                            path= os.path.join(export_path, 'results', "/img_{}_{}".format(epoch,index)))
-
-
-        # Save models
-        generator.save_weights(os.path.join(export_path, 'models', 'generator.h5'))
-        discriminator.save_weights(os.path.join(export_path, 'models', 'discriminator.h5'))
-
+        if e == 1 or e % 5 == 0:
+            # plot_generated_images(output_dir, e, generator, y_test, X_test)
+            save_images(X_test, y_test, generator, path=os.path.join(output_dir, "img_epoch{}".format(e)))
+        if e % 500 == 0:
+            generator.save(model_save_dir + 'gen_model%d.h5' % e)
+            discriminator.save(model_save_dir + 'dis_model%d.h5' % e)
