@@ -5,6 +5,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.optimizers import Adam
 import tensorflow.keras.backend as K
 from tensorflow.keras.initializers import glorot_uniform
+import matplotlib.pyplot as plt
 
 
 # https://github.com/keras-team/keras/issues/10074
@@ -85,7 +86,7 @@ def build_mangrove_model(input_shape):
     return model
 
 
-def mangrove_model(test=False):
+def mangrove_model(input_shape=(256, 256, 3), test=False):
 
     trained_model_path = '/Users/cate/Documents/Data_Science_MSc/ECMM433/data/models/mangrove_unet_jean_luc.h5'
 
@@ -93,7 +94,7 @@ def mangrove_model(test=False):
                                               custom_objects={'sorensen_dice_coef_loss':sorensen_dice_coef_loss},
                                               compile=True)
 
-    input_shape = (256, 256, 3)
+
     jeanluc_untrained = build_mangrove_model(input_shape=input_shape)
 
     # transfer weights to model with new input shape
@@ -108,15 +109,57 @@ def mangrove_model(test=False):
     new_model = keras.models.model_from_json(jeanluc_untrained.to_json())
 
     if test:
+
+        mangrove_chip = np.load('../resources/example_mangrove_chip.npy')
+        mangrove_chip_3band = np.expand_dims(mangrove_chip[:, :, 0:3], axis=0).astype(float)
+
+        print (mangrove_chip_3band.shape)
+
         X = np.random.rand(1, 256, 256, 3)
-        y_pred = jeanluc_untrained.predict(X)
+        y_pred = jeanluc_untrained.predict(mangrove_chip_3band)
         print('Untrained prediction: \n', y_pred)
 
-        new_y_pred = new_model.predict(X)
+        new_y_pred = new_model.predict(mangrove_chip_3band)
         print ('New prediction: \n', new_y_pred)
+
+        dim = (2, 2)
+
+        plt.subplot(dim[0], dim[1], 1)
+        plt.imshow(y_pred[0, :, :, 0], interpolation='nearest')
+        plt.axis('off')
+
+        plt.subplot(dim[0], dim[1], 2)
+        plt.imshow(new_y_pred[0, :, :, 0], interpolation='nearest')
+        plt.axis('off')
+
+        plt.subplot(dim[0], dim[1], 3)
+        plt.imshow(y_pred[0, :, :, 1], interpolation='nearest')
+        plt.axis('off')
+
+        plt.subplot(dim[0], dim[1], 4)
+        plt.imshow(new_y_pred[0, :, :, 1], interpolation='nearest')
+        plt.axis('off')
+
+        plt.tight_layout()
+        plt.savefig('mangrove_test')
 
     return new_model
 
-if __name__== "__main__":
+# computes mangrove loss or content loss
+def mangrove_loss(y_true, y_pred):
 
-    veg_model = mangrove_model(test=True)
+    mangrove = mangrove_model(input_shape=(256, 256, 3))
+    mangrove.trainable = False
+    # Make trainable as False
+    for l in mangrove.layers:
+        l.trainable = False
+    model = keras.Model(inputs=mangrove.input, mangrove=mangrove.get_layer('conv2d_17').output)
+    model.trainable = False
+
+    return K.mean(K.square(model(y_true) - model(y_pred)))
+
+# if __name__== "__main__":
+#
+#     veg_model = mangrove_model(test=False)
+#
+#     veg_model.summary()
