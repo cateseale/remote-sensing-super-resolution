@@ -1,22 +1,7 @@
-import time
-import datetime
-import imageio
+
 import numpy as np
-from glob import glob
-import os
-from natsort import natsorted
-import matplotlib.pyplot as plt
-import rasterio
-from osgeo import gdal
-from rasterio.plot import show
-import earthpy.plot as ep
-import rasterio
-from rasterio.enums import Resampling
 from tensorflow import keras
-import tensorflow as tf
 from tensorflow.keras import layers
-from tensorflow.keras.applications import VGG19
-from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.optimizers import Adam
 import tensorflow.keras.backend as K
 from tensorflow.keras.initializers import glorot_uniform
