@@ -141,22 +141,28 @@ def mangrove_model(input_shape=(256, 256, 3), test=False):
         plt.axis('off')
 
         plt.tight_layout()
-        plt.savefig('mangrove_test')
+        plt.savefig('../resources/mangrove_test')
 
     return new_model
 
-# computes mangrove loss or content loss
-def mangrove_loss(y_true, y_pred):
+class MangroveLoss(object):
 
-    mangrove = mangrove_model(input_shape=(256, 256, 3))
-    mangrove.trainable = False
-    # Make trainable as False
-    for l in mangrove.layers:
-        l.trainable = False
-    model = keras.Model(inputs=mangrove.input, mangrove=mangrove.get_layer('conv2d_17').output)
-    model.trainable = False
+    def __init__(self, image_shape):
 
-    return K.mean(K.square(model(y_true) - model(y_pred)))
+        self.image_shape = image_shape
+
+    # computes VGG loss or content loss
+    def model_loss(self, y_true, y_pred):
+        mangrove = mangrove_model(input_shape=self.image_shape)
+        mangrove.trainable = False
+        # Make trainable as False
+        for l in mangrove.layers:
+            l.trainable = False
+        model = keras.Model(inputs=mangrove.input, mangrove=mangrove.get_layer('conv2d_17').output)
+        model.trainable = False
+
+        return K.mean(K.square(model(y_true) - model(y_pred)))
+
 
 # if __name__== "__main__":
 #
