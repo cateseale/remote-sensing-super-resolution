@@ -110,7 +110,7 @@ def mangrove_model(input_shape=(256, 256, 3), test=False):
 
     if test:
 
-        mangrove_chip = np.load('../resources/example_mangrove_chip.npy')
+        mangrove_chip = np.load('../resources/example_chip.npy')
         mangrove_chip_3band = np.expand_dims(mangrove_chip[:, :, 0:3], axis=0).astype(float)
 
         print (mangrove_chip_3band.shape)
