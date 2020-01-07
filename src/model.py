@@ -14,7 +14,7 @@ class VggLoss(object):
         self.image_shape = image_shape
 
     # computes VGG loss or content loss
-    def vgg_loss(self, y_true, y_pred):
+    def model_loss(self, y_true, y_pred):
 
         vgg19 = VGG19(include_top=False, weights='imagenet', input_shape=self.image_shape)
         vgg19.trainable = False
