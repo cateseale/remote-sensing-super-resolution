@@ -74,7 +74,7 @@ def build_mangrove_model(input_shape):
         [layers.Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same', kernel_initializer=kernel_init)(conv8),
          conv1], axis=3)
     conv9 = layers.Conv2D(64, (3, 3), activation='relu', padding='same', kernel_initializer=kernel_init)(up9)
-    conv9 = layers.Conv2D(64, (3, 3), activation='relu', padding='same', kernel_initializer=kernel_init)(conv9)
+    conv9 = layers.Conv2D(64, (3, 3), activation='relu', padding='same', kernel_initializer=kernel_init, name='myoutputlayer')(conv9)
     conv9 = layers.Conv2D(2, (3, 3), activation='relu', padding='same', kernel_initializer=kernel_init)(conv9)
 
     conv10 = layers.Conv2D(2, (1, 1), activation='softmax')(conv9)
@@ -115,7 +115,6 @@ def mangrove_model(input_shape=(256, 256, 3), test=False):
 
         print (mangrove_chip_3band.shape)
 
-        X = np.random.rand(1, 256, 256, 3)
         y_pred = jeanluc_untrained.predict(mangrove_chip_3band)
         print('Untrained prediction: \n', y_pred)
 
@@ -158,7 +157,7 @@ class MangroveLoss(object):
         # Make trainable as False
         for l in mangrove.layers:
             l.trainable = False
-        model = keras.Model(inputs=mangrove.input, mangrove=mangrove.get_layer('conv2d_17').output)
+        model = keras.Model(inputs=mangrove.input, outputs=mangrove.get_layer('myoutputlayer').output)
         model.trainable = False
 
         return K.mean(K.square(model(y_true) - model(y_pred)))
