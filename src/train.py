@@ -9,7 +9,6 @@ from model import VggLoss, get_optimizer, Generator, Discriminator
 from mangrove_model import MangroveLoss
 
 
-
 # Combined network
 def get_gan_network(discriminator, shape, generator, optimizer, vgg_loss):
     discriminator.trainable = False
@@ -26,17 +25,15 @@ def get_gan_network(discriminator, shape, generator, optimizer, vgg_loss):
 
 def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir, loss_model):
 
-          # input_dir, number_of_images, train_test_ratio):
-    # x_train_lr, x_train_hr, x_test_lr, x_test_hr = Utils.load_training_data(input_dir, '.tif', number_of_images,
-    #                                                                         train_test_ratio)
-
     model_save_dir = os.path.join(data_dir, 'models')
     output_dir = os.path.join(data_dir, 'results')
 
     if loss_model == 'vgg':
+        print ('Using vgg loss')
         loss = VggLoss(output_shape)
 
     elif loss_model == 'mangrove':
+        print ('using mangrove loss')
         loss = MangroveLoss(output_shape)
 
     batch_count = int(X_train.shape[0] / batch_size)
