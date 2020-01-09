@@ -3,6 +3,7 @@
 import os
 import rasterio as rio
 import numpy as np
+import earthpy.plot as ep
 from glob import glob
 from natsort import natsorted
 from rasterio.enums import Resampling
@@ -10,9 +11,9 @@ from skimage.exposure import rescale_intensity
 from sklearn.model_selection import train_test_split
 
 
-def _split_train_test_val(high_resolution_images, low_resolution_images):
+def _split_train_test_val(high_resolution_images, low_resolution_images, test_size=0.2):
 
-    X_train, X_test, y_train, y_test = train_test_split(high_resolution_images, low_resolution_images, test_size=0.2,
+    X_train, X_test, y_train, y_test = train_test_split(high_resolution_images, low_resolution_images, test_size=test_size,
                                                         random_state=42)
 
     X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=0.5, random_state=42)
@@ -21,6 +22,39 @@ def _split_train_test_val(high_resolution_images, low_resolution_images):
         X_train.shape[0], X_val.shape[0], X_test.shape[0]))
 
     return X_train, X_val, X_test, y_train, y_val, y_test
+
+
+
+def _augmentation(image_batch, show=False):
+    rotated = np.rot90(image_batch, k=1, axes=(1, 2))
+    rotated2 = np.rot90(image_batch, k=2, axes=(1, 2))
+    rotated3 = np.rot90(image_batch, k=3, axes=(1, 2))
+    flipped = np.flip(image_batch, axis=2)
+    flipped_lr = np.fliplr(image_batch)
+
+    if show:
+        index = 30
+        fig = plt.figure(figsize=(15, 15))
+        ax1 = fig.add_subplot(2, 3, 1)
+        ep.plot_rgb(np.moveaxis(image_batch[index], -1, 0), ax=ax1, title='Original')
+
+        ax2 = fig.add_subplot(2, 3, 2)
+        ep.plot_rgb(np.moveaxis(rotated[index], -1, 0), ax=ax2, title='Rotated90')
+
+        ax3 = fig.add_subplot(2, 3, 3)
+        ep.plot_rgb(np.moveaxis(rotated2[index], -1, 0), ax=ax3, title='Rotated180')
+
+        ax4 = fig.add_subplot(1, 3, 1)
+        ep.plot_rgb(np.moveaxis(rotated3[index], -1, 0), ax=ax4, title='Rotated270')
+
+        ax5 = fig.add_subplot(1, 3, 2)
+        ep.plot_rgb(np.moveaxis(flipped[index], -1, 0), ax=ax5, title='Flipped')
+
+        ax6 = fig.add_subplot(1, 3, 3)
+        ep.plot_rgb(np.moveaxis(flipped_lr[index], -1, 0), ax=ax6, title='Flipped left/right')
+
+    return np.concatenate((image_batch, rotated, rotated2, rotated3, flipped, flipped_lr), axis=0)
+
 
 
 def _rgb_from_bgr(image_arr):
@@ -113,6 +147,10 @@ def load_images(image_data_path):
 
     high_res_imgs, low_res_imgs = _data_loader(high_res_imgs_paths, low_res_imgs_paths)
 
-    hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs, low_res_imgs)
+    high_res_imgs_aug = _augmentation(high_res_imgs)
+    low_res_imgs_aug = _augmentation(low_res_imgs)
+
+
+    hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs_aug, low_res_imgs_aug)
 
     return lr_train, lr_val, lr_test, hr_train, hr_val, hr_test
