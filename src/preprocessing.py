@@ -4,12 +4,13 @@ import os
 import rasterio as rio
 import numpy as np
 import earthpy.plot as ep
+import matplotlib.pyplot as plt
 from glob import glob
 from natsort import natsorted
 from rasterio.enums import Resampling
 from skimage.exposure import rescale_intensity
 from sklearn.model_selection import train_test_split
-
+from mlflow import log_metric, log_param, log_artifact
 
 def _split_train_test_val(high_resolution_images, low_resolution_images, test_size=0.2):
 
@@ -21,8 +22,12 @@ def _split_train_test_val(high_resolution_images, low_resolution_images, test_si
     print('Number of training images: {}\nNumber of validation images: {}\nNumber of test images: {}'.format(
         X_train.shape[0], X_val.shape[0], X_test.shape[0]))
 
-    return X_train, X_val, X_test, y_train, y_val, y_test
+    log_param("Training image pairs", X_train.shape[0])
+    log_param("Validation image pairs", X_val.shape[0])
+    log_param("Test image pairs", X_test.shape[0])
 
+
+    return X_train, X_val, X_test, y_train, y_val, y_test
 
 
 def _augmentation(image_batch, show=False):
@@ -54,7 +59,6 @@ def _augmentation(image_batch, show=False):
         ep.plot_rgb(np.moveaxis(flipped_lr[index], -1, 0), ax=ax6, title='Flipped left/right')
 
     return np.concatenate((image_batch, rotated, rotated2, rotated3, flipped, flipped_lr), axis=0)
-
 
 
 def _rgb_from_bgr(image_arr):
@@ -135,6 +139,9 @@ def _list_images(data_dir):
 
     print('Number of high resolution images: {}\nNumber of low resolution images: {}'.format(no_of_hr_images,
                                                                                              no_of_lr_images))
+
+    log_param("no_of_hr_images", no_of_hr_images)
+    log_param("no_of_lr_images", no_of_lr_images)
 
     assert no_of_hr_images == no_of_lr_images, 'Mismatch between the number of high and low resolution image pairs.'
 
