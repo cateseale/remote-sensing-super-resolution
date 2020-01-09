@@ -23,7 +23,8 @@ def get_gan_network(discriminator, shape, generator, optimizer, vgg_loss):
     return gan
 
 
-def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir, loss_model):
+def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir, loss_model, load_models=False,
+          pretrained_gen='', pretrained_dis=''):
 
     model_save_dir = os.path.join(data_dir, 'models')
     output_dir = os.path.join(data_dir, 'results')
@@ -38,8 +39,13 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
 
     batch_count = int(X_train.shape[0] / batch_size)
 
-    generator = Generator(input_shape).generator()
-    discriminator = Discriminator(output_shape).discriminator()
+    if load_models:
+        generator = keras.models.load_model(os.path.join(model_save_dir, pretrained_gen))
+        discriminator = keras.models.load_model(os.path.join(model_save_dir, pretrained_dis))
+
+    else:
+        generator = Generator(input_shape).generator()
+        discriminator = Discriminator(output_shape).discriminator()
 
     optimizer = get_optimizer()
     generator.compile(loss=loss.model_loss, optimizer=optimizer)
@@ -81,13 +87,13 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
 
             gan_loss = str(gan_loss)
 
-            loss_file = open(model_save_dir + 'losses.txt', 'a')
+            loss_file = open(os.path.join(model_save_dir, 'losses.txt'), 'a')
             loss_file.write('epoch%d : gan_loss = %s ; discriminator_loss = %f\n' % (e, gan_loss, discriminator_loss))
             loss_file.close()
 
         if e == 1 or e % 5 == 0:
             # plot_generated_images(output_dir, e, generator, y_test, X_test)
             save_images(X_test, y_test, generator, path=os.path.join(output_dir, "img_epoch{}".format(e)))
-        if e % 500 == 0:
-            generator.save(model_save_dir + 'gen_model%d.h5' % e)
-            discriminator.save(model_save_dir + 'dis_model%d.h5' % e)
+        if e % 1 == 0:
+            generator.save(os.path.join(model_save_dir, 'gen_model%d.h5' % e))
+            discriminator.save(os.path.join(model_save_dir, 'dis_model%d.h5' % e))
