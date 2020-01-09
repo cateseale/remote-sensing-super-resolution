@@ -30,7 +30,7 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
 if __name__== "__main__":
 
-    epochs = 2
+    epochs = 3000
     batch_size = 28
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
