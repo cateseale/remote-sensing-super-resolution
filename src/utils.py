@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
+import os
 import numpy as np
 from numpy.random import randint
 import matplotlib.pyplot as plt
 import earthpy.plot as ep
+from datetime import datetime
 
 plt.switch_backend('agg')
 
@@ -78,3 +80,27 @@ def save_images(low_resolution_image, original_image, generator, path):
     ep.plot_rgb(np.moveaxis(generated_image[value], -1, 0), ax=ax3, title='Super-resolution image')
 
     plt.savefig(path)
+
+
+def save_train_test_split(image_splits_list, save_dir):
+
+    # NOTE: image splits must be in this order  -  X_train, X_val, X_test, y_train, y_val, y_test
+
+    timestamp_obj = datetime.now()
+    data_created_timestamp = timestamp_obj.strftime('%Y%m%d_%H%M%S')
+
+    filenames = [os.path.join(save_dir, 'images', data_created_timestamp +'_X_train'),
+                 os.path.join(save_dir, 'images', data_created_timestamp + '_X_val'),
+                 os.path.join(save_dir, 'images', data_created_timestamp + '_X_test'),
+                 os.path.join(save_dir, 'images', data_created_timestamp + '_y_train'),
+                 os.path.join(save_dir, 'images', data_created_timestamp + '_y_val'),
+                 os.path.join(save_dir, 'images', data_created_timestamp + '_y_test')]
+
+    for i in range(0,6):
+        np.save(filenames[i], image_splits_list[i])
+
+    print('Train/val/test image split created at {}'.format(data_created_timestamp))
+
+
+
+
