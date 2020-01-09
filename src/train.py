@@ -2,7 +2,7 @@
 
 import os
 import numpy as np
-# from utils import plot_generated_images, save_images
+from utils import plot_generated_images, save_images
 from tqdm import tqdm
 from tensorflow import keras
 from model import VggLoss, get_optimizer, Generator, Discriminator
@@ -100,9 +100,9 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
                 f.write('epoch%d : gan_loss = %s ; discriminator_loss = %f\n' % (e, gan_loss, discriminator_loss))
             log_artifact(loss_output)
 
-        # if e == 1 or e % 5 == 0:
-        #     # plot_generated_images(output_dir, e, generator, y_test, X_test)
-        #     save_images(X_test, y_test, generator, path=os.path.join(output_dir, "img_epoch{}".format(e)))
+        if e == 1 or e % 5 == 0:
+            # plot_generated_images(output_dir, e, generator, y_test, X_test)
+            save_images(X_test, y_test, generator, path=os.path.join(output_dir, "img_epoch{}".format(e)))
         if e % 200 == 0:
             generator.save(os.path.join(model_save_dir, 'gen_model%d.h5' % e))
             discriminator.save(os.path.join(model_save_dir, 'dis_model%d.h5' % e))

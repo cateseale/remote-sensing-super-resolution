@@ -6,8 +6,6 @@ from preprocessing import load_images
 from utils import save_train_test_split
 from tensorflow.python.framework.ops import disable_eager_execution
 from mlflow import log_metric, log_param, log_artifact
-import mlflow
-
 
 
 def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, loss_model='vgg'):
