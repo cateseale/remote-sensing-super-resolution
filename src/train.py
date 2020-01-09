@@ -23,8 +23,7 @@ def get_gan_network(discriminator, shape, generator, optimizer, vgg_loss):
     return gan
 
 
-def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir, loss_model, load_models=False,
-          pretrained_gen='', pretrained_dis=''):
+def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, batch_size, data_dir, loss_model):
 
     model_save_dir = os.path.join(data_dir, 'models')
     output_dir = os.path.join(data_dir, 'results')
@@ -39,13 +38,8 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
 
     batch_count = int(X_train.shape[0] / batch_size)
 
-    if load_models:
-        generator = keras.models.load_model(os.path.join(model_save_dir, pretrained_gen))
-        discriminator = keras.models.load_model(os.path.join(model_save_dir, pretrained_dis))
-
-    else:
-        generator = Generator(input_shape).generator()
-        discriminator = Discriminator(output_shape).discriminator()
+    generator = Generator(input_shape).generator()
+    discriminator = Discriminator(output_shape).discriminator()
 
     optimizer = get_optimizer()
     generator.compile(loss=loss.model_loss, optimizer=optimizer)
@@ -53,7 +47,7 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
 
     gan = get_gan_network(discriminator, input_shape, generator, optimizer, loss.model_loss)
 
-    loss_file = open(model_save_dir + 'losses.txt', 'w+')
+    loss_file = open(os.path.join(model_save_dir + 'losses.txt'), 'w+')
     loss_file.close()
 
     for e in range(1, epochs + 1):
