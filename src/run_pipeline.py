@@ -32,8 +32,8 @@ if __name__== "__main__":
     batch_size = 28
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
-    data_dir = '/Users/cate/Documents/Data_Science_MSc/ECMM433/data'
-    # data_dir = '/home/ec2-user/gan/data'
+    # data_dir = '/Users/cate/Documents/Data_Science_MSc/ECMM433/data'
+    data_dir = '/home/ec2-user/gan/data'
 
 
     log_param("epochs", epochs)
