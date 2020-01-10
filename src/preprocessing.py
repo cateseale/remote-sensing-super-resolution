@@ -4,7 +4,7 @@ import os
 import rasterio as rio
 import numpy as np
 # import earthpy.plot as ep
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from glob import glob
 from natsort import natsorted
 from rasterio.enums import Resampling
@@ -39,24 +39,24 @@ def _augmentation(image_batch, show=False):
 
     if show:
         index = 30
-        fig = plt.figure(figsize=(15, 15))
-        ax1 = fig.add_subplot(2, 3, 1)
-        ep.plot_rgb(np.moveaxis(image_batch[index], -1, 0), ax=ax1, title='Original')
-
-        ax2 = fig.add_subplot(2, 3, 2)
-        ep.plot_rgb(np.moveaxis(rotated[index], -1, 0), ax=ax2, title='Rotated90')
-
-        ax3 = fig.add_subplot(2, 3, 3)
-        ep.plot_rgb(np.moveaxis(rotated2[index], -1, 0), ax=ax3, title='Rotated180')
-
-        ax4 = fig.add_subplot(1, 3, 1)
-        ep.plot_rgb(np.moveaxis(rotated3[index], -1, 0), ax=ax4, title='Rotated270')
-
-        ax5 = fig.add_subplot(1, 3, 2)
-        ep.plot_rgb(np.moveaxis(flipped[index], -1, 0), ax=ax5, title='Flipped')
-
-        ax6 = fig.add_subplot(1, 3, 3)
-        ep.plot_rgb(np.moveaxis(flipped_lr[index], -1, 0), ax=ax6, title='Flipped left/right')
+        # fig = plt.figure(figsize=(15, 15))
+        # ax1 = fig.add_subplot(2, 3, 1)
+        # ep.plot_rgb(np.moveaxis(image_batch[index], -1, 0), ax=ax1, title='Original')
+        #
+        # ax2 = fig.add_subplot(2, 3, 2)
+        # ep.plot_rgb(np.moveaxis(rotated[index], -1, 0), ax=ax2, title='Rotated90')
+        #
+        # ax3 = fig.add_subplot(2, 3, 3)
+        # ep.plot_rgb(np.moveaxis(rotated2[index], -1, 0), ax=ax3, title='Rotated180')
+        #
+        # ax4 = fig.add_subplot(1, 3, 1)
+        # ep.plot_rgb(np.moveaxis(rotated3[index], -1, 0), ax=ax4, title='Rotated270')
+        #
+        # ax5 = fig.add_subplot(1, 3, 2)
+        # ep.plot_rgb(np.moveaxis(flipped[index], -1, 0), ax=ax5, title='Flipped')
+        #
+        # ax6 = fig.add_subplot(1, 3, 3)
+        # ep.plot_rgb(np.moveaxis(flipped_lr[index], -1, 0), ax=ax6, title='Flipped left/right')
 
     return np.concatenate((image_batch, rotated, rotated2, rotated3, flipped, flipped_lr), axis=0)
 
@@ -108,22 +108,42 @@ def _load_image_rgb(image_path, resample_img=False, scale_factor=0.25):
 
 def _data_loader(hr_paths, lr_paths):
 
-    hr_images = []
+    # hr_images = []
+    #
+    # for item in hr_paths:
+    #     image = _load_image_rgb(item)
+    #     hr_images.append(image)
+    #
+    # lr_images = []
+    #
+    # for item in lr_paths:
+    #     image = _load_image_rgb(item, resample_img=True, scale_factor=0.25)
+    #     lr_images.append(image)
+    #
+    # hr_images = np.array(hr_images)
+    # lr_images = np.array(lr_images)
+
+    hr_image_arr = None
+    lr_image_arr = None
 
     for item in hr_paths:
-        image = _load_image_rgb(item)
-        hr_images.append(image)
 
-    lr_images = []
+        if hr_image_arr is None:
+            hr_image_arr = np.expand_dims(_load_image_rgb(item), axis=0)
+
+        else:
+            hr_image_arr = np.insert(hr_image_arr, hr_image_arr.shape[0], _load_image_rgb(item), axis=0)
 
     for item in lr_paths:
-        image = _load_image_rgb(item, resample_img=True, scale_factor=0.25)
-        lr_images.append(image)
 
-    hr_images = np.array(hr_images)
-    lr_images = np.array(lr_images)
+        if lr_image_arr is None:
+            lr_image_arr = np.expand_dims(_load_image_rgb(item), axis=0)
 
-    return hr_images, lr_images
+        else:
+            lr_image_arr = np.insert(lr_image_arr, lr_image_arr.shape[0], _load_image_rgb(item), axis=0)
+
+
+    return hr_image_arr, lr_image_arr
 
 
 def _list_images(data_dir):

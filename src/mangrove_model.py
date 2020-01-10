@@ -144,6 +144,7 @@ def mangrove_model(input_shape=(256, 256, 3), test=False):
 
     return new_model
 
+
 class MangroveLoss(object):
 
     def __init__(self, image_shape):
