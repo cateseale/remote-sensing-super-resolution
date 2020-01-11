@@ -137,8 +137,8 @@ def _data_loader(hr_paths, lr_paths):
     hr_image_list_computed = dask.compute(*hr_image_list)
     lr_image_list_computed = dask.compute(*lr_image_list)
 
-    hr_image_arr = np.array(hr_image_list_computed)
-    lr_image_arr = np.array(lr_image_list_computed)
+    hr_image_arr = np.array(hr_image_list_computed, dtype='float16')
+    lr_image_arr = np.array(lr_image_list_computed, dtype='float16')
 
     return hr_image_arr, lr_image_arr
 
