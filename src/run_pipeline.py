@@ -3,7 +3,7 @@
 
 from train import train
 from preprocessing import load_images
-from utils import save_train_test_split
+from utils import save_test_data
 from tensorflow.python.framework.ops import disable_eager_execution
 from mlflow import log_metric, log_param, log_artifact
 
@@ -14,7 +14,7 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
     X_train, X_val, X_test, y_train, y_val, y_test = load_images(path_to_data_folder)
 
-    save_train_test_split([X_train, X_val, X_test, y_train, y_val, y_test], data_dir)
+    save_test_data([X_test, y_test], data_dir)
 
     if loss_model == 'mangrove':
         disable_eager_execution()
