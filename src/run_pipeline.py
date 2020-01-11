@@ -16,6 +16,8 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
     save_test_data([X_test, y_test], data_dir)
 
+    print('Test data saved')
+
     if loss_model == 'mangrove':
         disable_eager_execution()
 
