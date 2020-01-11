@@ -137,8 +137,8 @@ def _data_loader(hr_paths, lr_paths):
     hr_image_list_computed = dask.compute(*hr_image_list)
     lr_image_list_computed = dask.compute(*lr_image_list)
 
-    hr_image_arr = np.array(hr_image_list_computed, dtype='float16')
-    lr_image_arr = np.array(lr_image_list_computed, dtype='float16')
+    hr_image_arr = np.array(hr_image_list_computed, dtype='float32')
+    lr_image_arr = np.array(lr_image_list_computed, dtype='float32')
 
     return hr_image_arr, lr_image_arr
 
@@ -169,7 +169,7 @@ def load_images(image_data_path):
 
     high_res_imgs_paths, low_res_imgs_paths = _list_images(image_data_path)
 
-    high_res_imgs, low_res_imgs = _data_loader(high_res_imgs_paths, low_res_imgs_paths)
+    high_res_imgs, low_res_imgs = _data_loader(high_res_imgs_paths[0:10], low_res_imgs_paths[0:10])
 
     hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs, low_res_imgs)
 
