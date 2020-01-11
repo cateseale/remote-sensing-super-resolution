@@ -3,14 +3,14 @@
 import os
 import rasterio as rio
 import numpy as np
-# import earthpy.plot as ep
-# import matplotlib.pyplot as plt
+import dask
 from glob import glob
 from natsort import natsorted
 from rasterio.enums import Resampling
 from skimage.exposure import rescale_intensity
 from sklearn.model_selection import train_test_split
 from mlflow import log_metric, log_param, log_artifact
+from dask import delayed
 
 def _split_train_test_val(high_resolution_images, low_resolution_images, test_size=0.2):
 
@@ -30,35 +30,29 @@ def _split_train_test_val(high_resolution_images, low_resolution_images, test_si
     return X_train, X_val, X_test, y_train, y_val, y_test
 
 
-def _augmentation(image_batch, show=False):
-    rotated = np.rot90(image_batch, k=1, axes=(1, 2))
-    rotated2 = np.rot90(image_batch, k=2, axes=(1, 2))
-    rotated3 = np.rot90(image_batch, k=3, axes=(1, 2))
-    flipped = np.flip(image_batch, axis=2)
-    flipped_lr = np.fliplr(image_batch)
+def rot_90(image):
+    rotated90 = np.rot90(image, k=1, axes=(0, 1))
+    return rotated90
 
-    if show:
-        index = 30
-        # fig = plt.figure(figsize=(15, 15))
-        # ax1 = fig.add_subplot(2, 3, 1)
-        # ep.plot_rgb(np.moveaxis(image_batch[index], -1, 0), ax=ax1, title='Original')
-        #
-        # ax2 = fig.add_subplot(2, 3, 2)
-        # ep.plot_rgb(np.moveaxis(rotated[index], -1, 0), ax=ax2, title='Rotated90')
-        #
-        # ax3 = fig.add_subplot(2, 3, 3)
-        # ep.plot_rgb(np.moveaxis(rotated2[index], -1, 0), ax=ax3, title='Rotated180')
-        #
-        # ax4 = fig.add_subplot(1, 3, 1)
-        # ep.plot_rgb(np.moveaxis(rotated3[index], -1, 0), ax=ax4, title='Rotated270')
-        #
-        # ax5 = fig.add_subplot(1, 3, 2)
-        # ep.plot_rgb(np.moveaxis(flipped[index], -1, 0), ax=ax5, title='Flipped')
-        #
-        # ax6 = fig.add_subplot(1, 3, 3)
-        # ep.plot_rgb(np.moveaxis(flipped_lr[index], -1, 0), ax=ax6, title='Flipped left/right')
 
-    return np.concatenate((image_batch, rotated, rotated2, rotated3, flipped, flipped_lr), axis=0)
+def rot_180(image):
+    rotated180 = np.rot90(image, k=2, axes=(0, 1))
+    return rotated180
+
+
+def rot_270(image):
+    rotated270 = np.rot90(image, k=3, axes=(0,1))
+    return rotated270
+
+
+def flip(image):
+    flipped = np.flip(image, axis=2)
+    return flipped
+
+
+def flipped_lr(image):
+    flippedlr = np.fliplr(image)
+    return flippedlr
 
 
 def _rgb_from_bgr(image_arr):
@@ -107,41 +101,44 @@ def _load_image_rgb(image_path, resample_img=False, scale_factor=0.25):
 
 
 def _data_loader(hr_paths, lr_paths):
-
-    # hr_images = []
-    #
-    # for item in hr_paths:
-    #     image = _load_image_rgb(item)
-    #     hr_images.append(image)
-    #
-    # lr_images = []
-    #
-    # for item in lr_paths:
-    #     image = _load_image_rgb(item, resample_img=True, scale_factor=0.25)
-    #     lr_images.append(image)
-    #
-    # hr_images = np.array(hr_images)
-    # lr_images = np.array(lr_images)
-
-    hr_image_arr = None
-    lr_image_arr = None
+    hr_image_list = []
+    lr_image_list = []
 
     for item in hr_paths:
+        original = delayed(_load_image_rgb)(item)
+        image_90 = delayed(rot_90)(original)
+        image_180 = delayed(rot_180)(original)
+        image_270 = delayed(rot_270)(original)
+        image_flipped = delayed(flip)(original)
+        image_flippedlr = delayed(flipped_lr)(original)
 
-        if hr_image_arr is None:
-            hr_image_arr = np.expand_dims(_load_image_rgb(item), axis=0)
-
-        else:
-            hr_image_arr = np.insert(hr_image_arr, hr_image_arr.shape[0], _load_image_rgb(item), axis=0)
+        hr_image_list.append(original)
+        hr_image_list.append(image_90)
+        hr_image_list.append(image_180)
+        hr_image_list.append(image_270)
+        hr_image_list.append(image_flipped)
+        hr_image_list.append(image_flippedlr)
 
     for item in lr_paths:
+        original = delayed(_load_image_rgb)(item, resample_img=True)
+        image_90 = delayed(rot_90)(original)
+        image_180 = delayed(rot_180)(original)
+        image_270 = delayed(rot_270)(original)
+        image_flipped = delayed(flip)(original)
+        image_flippedlr = delayed(flipped_lr)(original)
 
-        if lr_image_arr is None:
-            lr_image_arr = np.expand_dims(_load_image_rgb(item), axis=0)
+        lr_image_list.append(original)
+        lr_image_list.append(image_90)
+        lr_image_list.append(image_180)
+        lr_image_list.append(image_270)
+        lr_image_list.append(image_flipped)
+        lr_image_list.append(image_flippedlr)
 
-        else:
-            lr_image_arr = np.insert(lr_image_arr, lr_image_arr.shape[0], _load_image_rgb(item), axis=0)
+    hr_image_list_computed = dask.compute(*hr_image_list)
+    lr_image_list_computed = dask.compute(*lr_image_list)
 
+    hr_image_arr = np.array(hr_image_list_computed)
+    lr_image_arr = np.array(lr_image_list_computed)
 
     return hr_image_arr, lr_image_arr
 
@@ -174,10 +171,6 @@ def load_images(image_data_path):
 
     high_res_imgs, low_res_imgs = _data_loader(high_res_imgs_paths, low_res_imgs_paths)
 
-    high_res_imgs_aug = _augmentation(high_res_imgs)
-    low_res_imgs_aug = _augmentation(low_res_imgs)
-
-
-    hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs_aug, low_res_imgs_aug)
+    hr_train, hr_val, hr_test, lr_train, lr_val, lr_test = _split_train_test_val(high_res_imgs, low_res_imgs)
 
     return lr_train, lr_val, lr_test, hr_train, hr_val, hr_test
