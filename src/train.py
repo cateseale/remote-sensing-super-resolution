@@ -51,7 +51,7 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
 
     gan = get_gan_network(discriminator, input_shape, generator, optimizer, loss.model_loss)
 
-    loss_file = open(os.path.join(model_save_dir + 'losses.txt'), 'w+')
+    loss_file = open(os.path.join(model_save_dir, 'losses.txt'), 'w+')
     loss_file.close()
 
     for e in range(1, epochs + 1):
@@ -90,10 +90,6 @@ def train(X_train, X_test, y_train, y_test, input_shape, output_shape, epochs, b
             log_metric("discriminator_loss", discriminator_loss)
 
             gan_loss = str(gan_loss)
-
-            # loss_file = open(os.path.join(model_save_dir, 'losses.txt'), 'a')
-            # loss_file.write('epoch%d : gan_loss = %s ; discriminator_loss = %f\n' % (e, gan_loss, discriminator_loss))
-            # loss_file.close()
 
             loss_output = os.path.join(model_save_dir, 'losses.txt')
             with open(loss_output, "w") as f:
