@@ -19,9 +19,9 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
     if loss_model == 'mangrove':
         disable_eager_execution()
 
-    # else:
-    #     print('Training new model')
-    #     train(X_train, X_val, y_train, y_val, low_res_shape, high_res_shape, epochs, batch_size, path_to_data_folder, loss_model)
+    else:
+        print('Training new model')
+        train(X_train, X_val, y_train, y_val, low_res_shape, high_res_shape, epochs, batch_size, path_to_data_folder, loss_model)
 
     print ('Pipeline complete.')
 
@@ -32,7 +32,7 @@ if __name__== "__main__":
     batch_size = 28
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
-    # data_dir = '/Users/cate/Documents/Data_Science_MSc/ECMM433/data'
+    # data_dir = '/Users/cate/data/gans'
     data_dir = '/home/ec2-user/gan/data'
 
 
