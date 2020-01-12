@@ -25,7 +25,7 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
     else:
         print('Training new model')
-        train(low_res_imgs_paths[0:10], high_res_imgs_paths[0:10], low_res_shape, high_res_shape, batch_size, epochs, data_dir,
+        train(low_res_imgs_paths, high_res_imgs_paths, low_res_shape, high_res_shape, batch_size, epochs, data_dir,
               loss_model=loss_model, workers=8)
 
     print ('Pipeline complete.')
@@ -33,7 +33,7 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
 if __name__== "__main__":
 
-    epochs = 2
+    epochs = 1
     batch_size = 2
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
