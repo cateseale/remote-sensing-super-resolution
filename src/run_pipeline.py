@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-
+import os
 from train import train
-from preprocessing import load_images
+from preprocessing import list_images
 from utils import save_test_data
 from tensorflow.python.framework.ops import disable_eager_execution
 from mlflow import log_metric, log_param, log_artifact
@@ -12,18 +12,21 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
     log_param("loss_model", loss_model)
 
-    X_train, X_val, X_test, y_train, y_val, y_test = load_images(path_to_data_folder)
+    low_res_imgs_paths, high_res_imgs_paths = list_images(os.path.join(path_to_data_folder))
 
-    save_test_data([X_test, y_test], data_dir)
-
-    print('Test data saved')
-
+    # X_train, X_val, X_test, y_train, y_val, y_test = load_images(path_to_data_folder)
+    #
+    # save_test_data([X_test, y_test], data_dir)
+    #
+    # print('Test data saved')
+    #
     if loss_model == 'mangrove':
         disable_eager_execution()
 
     else:
         print('Training new model')
-        train(X_train, X_val, y_train, y_val, low_res_shape, high_res_shape, epochs, batch_size, path_to_data_folder, loss_model)
+        train(low_res_imgs_paths[0:10], high_res_imgs_paths[0:10], low_res_shape, high_res_shape, batch_size, epochs, data_dir,
+              loss_model=loss_model, workers=8)
 
     print ('Pipeline complete.')
 
@@ -31,11 +34,11 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 if __name__== "__main__":
 
     epochs = 2
-    batch_size = 28
+    batch_size = 2
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
-    # data_dir = '/Users/cate/data/gans'
-    data_dir = '/home/ec2-user/gan/data'
+    data_dir = '/Users/cate/data/gans'
+    # data_dir = '/home/ec2-user/gan/data'
 
 
     log_param("epochs", epochs)
