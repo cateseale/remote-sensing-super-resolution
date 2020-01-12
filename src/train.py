@@ -103,7 +103,7 @@ def train(low_res_img_paths, high_res_img_paths, input_shape, output_shape, batc
                 f.write('epoch%d : gan_loss = %s ; discriminator_loss = %f\n' % (e, gan_loss, discriminator_loss))
             log_artifact(loss_output)
 
-        if e % 200 == 0:
+        if e % 1 == 0:
             generator.save(os.path.join(model_save_dir, 'gen_model%d.h5' % e))
             discriminator.save(os.path.join(model_save_dir, 'dis_model%d.h5' % e))
 
