@@ -18,8 +18,8 @@ from mlflow import log_metric, log_param, log_artifact
 
 def list_images(data_dir):
 
-    high_resolution_images_dir = os.path.join(data_dir, 'images', 'high')
-    low_resolution_images_dir = os.path.join(data_dir, 'images', 'low')
+    high_resolution_images_dir = os.path.join(data_dir, 'images', 'train', 'high')
+    low_resolution_images_dir = os.path.join(data_dir, 'images', 'train', 'low')
 
     high_resolution_images_list = natsorted(glob(os.path.join(high_resolution_images_dir, '*.tif')))
     low_resolution_images_list = natsorted(glob(os.path.join(low_resolution_images_dir, '*.tif')))
