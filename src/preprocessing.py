@@ -150,7 +150,7 @@ class DataLoader(tf.keras.utils.Sequence):
         batch_y = self.y[idx * self.batch_size:(idx + 1) * self.batch_size]
 
         return np.array(np.concatenate([image_augmenter(file_name, resample_img=True) for file_name in batch_x])), \
-               np.array(np.concatenate([image_augmenter(file_name) for file_name in batch_y])), batch_x, batch_y
+               np.array(np.concatenate([image_augmenter(file_name) for file_name in batch_y]))
 
 # def _split_train_test_val(high_resolution_images, low_resolution_images, test_size=0.2):
 #
