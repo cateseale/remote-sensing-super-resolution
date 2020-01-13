@@ -10,8 +10,19 @@ from mlflow import log_metric, log_param, log_artifact
 
 def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, loss_model='vgg'):
 
-    tf.config.gpu.set_per_process_memory_fraction(0.5)
-    tf.config.gpu.set_per_process_memory_growth(True)
+
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        # Restrict TensorFlow to only allocate 1GB of memory on the first GPU
+        try:
+            tf.config.experimental.set_virtual_device_configuration(
+                gpus[0],
+                [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=1024)])
+            logical_gpus = tf.config.experimental.list_logical_devices('GPU')
+            print(len(gpus), "Physical GPUs,", len(logical_gpus), "Logical GPUs")
+        except RuntimeError as e:
+            # Virtual devices must be set before GPUs have been initialized
+            print(e)
 
     log_param("loss_model", loss_model)
 
@@ -40,8 +51,8 @@ if __name__== "__main__":
     batch_size = 2
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
-    data_dir = '/Users/cate/data/gans'
-    # data_dir = '/home/ec2-user/gan/data'
+    # data_dir = '/Users/cate/data/gans'
+    data_dir = '/home/ec2-user/gan/data'
 
 
     log_param("epochs", epochs)
