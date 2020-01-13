@@ -11,7 +11,6 @@ from dask import delayed
 from natsort import natsorted
 from rasterio.enums import Resampling
 from skimage.exposure import rescale_intensity
-from sklearn.model_selection import train_test_split
 from mlflow import log_metric, log_param, log_artifact
 
 
