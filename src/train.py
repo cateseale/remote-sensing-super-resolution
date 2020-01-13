@@ -68,9 +68,12 @@ def train(low_res_img_paths, high_res_img_paths, input_shape, output_shape, batc
         for i in tqdm(range(0, number_of_batches)):
             print('batch {}'.format(i))
 
-            image_batch_lr, image_batch_hr = next(gen)
+            image_batch_lr, image_batch_hr, batch_x, batch_y = next(gen)
             print(image_batch_lr.shape)
+            print(batch_x)
             print(image_batch_hr.shape)
+
+            print(batch_y)
 
             generated_images_sr = generator.predict(image_batch_lr)
 
