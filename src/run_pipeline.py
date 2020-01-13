@@ -10,6 +10,8 @@ from mlflow import log_metric, log_param, log_artifact
 
 def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, loss_model='vgg'):
 
+    tf.keras.backend.clear_session()
+
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         try:
@@ -38,7 +40,7 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
     else:
         print('Training new model')
         train(low_res_imgs_paths, high_res_imgs_paths, low_res_shape, high_res_shape, batch_size, epochs, data_dir,
-              loss_model=loss_model, workers=8)
+              loss_model=loss_model, workers=1)
 
     print ('Pipeline complete.')
 
