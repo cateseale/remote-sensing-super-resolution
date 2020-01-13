@@ -134,5 +134,3 @@ class Discriminator(object):
         discriminator_model = keras.Model(inputs=dis_input, outputs=model)
 
         return discriminator_model
-
-

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
 import os
-import tensorflow as tf
 from train import train
 from preprocessing import list_images
 from tensorflow.python.framework.ops import disable_eager_execution
-from mlflow import log_metric, log_param, log_artifact
+from mlflow import log_param
 
 
 def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, loss_model='vgg'):
@@ -16,7 +15,6 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
     low_res_imgs_paths, high_res_imgs_paths = list_images(os.path.join(path_to_data_folder))
 
-
     train(low_res_imgs_paths, high_res_imgs_paths, low_res_shape, high_res_shape, batch_size, epochs, data_dir,
               loss_model=loss_model, workers=1)
 
@@ -25,8 +23,8 @@ def run(path_to_data_folder, low_res_shape, high_res_shape, epochs, batch_size, 
 
 if __name__== "__main__":
 
-    epochs = 1
-    batch_size = 32
+    epochs = 100
+    batch_size = 4
     lr_shape = (64, 64, 3)
     hr_shape = (256, 256, 3)
     # data_dir = '/Users/cate/data/gans'

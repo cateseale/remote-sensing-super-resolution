@@ -94,7 +94,6 @@ def mangrove_model(input_shape=(256, 256, 3), test=False):
                                               custom_objects={'sorensen_dice_coef_loss':sorensen_dice_coef_loss},
                                               compile=True)
 
-
     jeanluc_untrained = build_mangrove_model(input_shape=input_shape)
 
     # transfer weights to model with new input shape
