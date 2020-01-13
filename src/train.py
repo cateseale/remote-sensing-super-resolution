@@ -49,7 +49,8 @@ def train(low_res_img_paths, high_res_img_paths, input_shape, output_shape, batc
     discriminator = Discriminator(output_shape).discriminator()
 
     optimizer = get_optimizer()
-    generator.compile(loss=loss.model_loss, optimizer=optimizer)
+    run_opts = tf.RunOptions(report_tensor_allocations_upon_oom=True)
+    generator.compile(loss=loss.model_loss, optimizer=optimizer, options=run_opts)
     discriminator.compile(loss="binary_crossentropy", optimizer=optimizer)
 
     gan = get_gan_network(discriminator, input_shape, generator, optimizer, loss.model_loss)
