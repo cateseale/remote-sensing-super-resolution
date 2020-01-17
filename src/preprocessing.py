@@ -37,6 +37,12 @@ def list_images(data_dir):
     return low_resolution_images_list, high_resolution_images_list
 
 
+def scale(x, out_range=(-1, 1)):
+    domain = np.min(x), np.max(x)
+    y = (x - (domain[1] + domain[0]) / 2) / (domain[1] - domain[0])
+    return y * (out_range[1] - out_range[0]) + (out_range[1] + out_range[0]) / 2
+
+
 def rgb_from_bgr(image_arr):
     row, col, _ = image_arr.shape
     rgb_image = np.zeros((row, col, 3), dtype=np.float)
@@ -68,7 +74,9 @@ def load_image_rgb(image_path, resample_img=False, scale_factor=0.25):
         channels_last = np.moveaxis(data[0:3, :, :], 0, -1)
         rgb = rgb_from_bgr(channels_last)
 
-        return rgb
+        rgb_scaled = scale(rgb)
+
+        return rgb_scaled
 
     else:
         with rio.open(image_path) as src:
@@ -77,7 +85,9 @@ def load_image_rgb(image_path, resample_img=False, scale_factor=0.25):
         channels_last = np.moveaxis(data[0:3, :, :], 0, -1)
         rgb = rgb_from_bgr(channels_last)
 
-        return rgb
+        rgb_scaled = scale(rgb)
+
+        return rgb_scaled
 
 
 def rot_90(image):
