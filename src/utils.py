@@ -20,15 +20,15 @@ def save_images(low_resolution_image, original_image, generator, path):
 
     gen_img = generator.predict(low_resolution_image)
 
-    fig = plt.figure(figsize=(20,20))
-    ax1 = fig.add_subplot(1, 3, 1)
-    plt.imshow(low_resolution_image[value], ax=ax1, title='Low resolution image')
-
-    ax2 = fig.add_subplot(1, 3, 2)
-    plt.imshow(original_image[value], ax=ax2, title='High resolution image')
-
-    ax3 = fig.add_subplot(1, 3, 3)
-    plt.imshow(gen_img[value], ax=ax3, title='Super-resolution image')
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(18, 6))
+    fig.suptitle('Title goes here')
+    ax1.imshow(low_resolution_image[value])
+    ax2.imshow(gen_img[value])
+    ax3.imshow(original_image[value])
+    ax1.title.set_text('Low resolution image')
+    ax2.title.set_text('Super resolution image')
+    ax3.title.set_text('High resolution image')
+    plt.show()
 
     plt.savefig(path)
 
