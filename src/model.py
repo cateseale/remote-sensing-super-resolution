@@ -97,7 +97,8 @@ class Generator(object):
             model = up_sampling_block(model, 3, 256, 1)
 
         model = layers.Conv2D(filters=3, kernel_size=9, strides=1, padding="same")(model)
-        model = layers.Activation('tanh')(model)
+        # model = layers.Activation('tanh')(model)
+        model = layers.Activation('sigmoid')(model)
 
         generator_model = keras.Model(inputs=gen_input, outputs=model)
 
