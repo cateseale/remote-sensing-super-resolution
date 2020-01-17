@@ -9,6 +9,7 @@ from preprocessing import DataLoader
 from model import VggLoss, get_optimizer, Generator, Discriminator
 from mangrove_model import MangroveLoss
 from mlflow import log_metric, log_param, log_artifact
+from utils import save_images
 
 
 # Combined network
@@ -102,3 +103,8 @@ def train(low_res_img_paths, high_res_img_paths, input_shape, output_shape, batc
         if e % 5 == 0:
             generator.save(os.path.join(model_save_dir, 'gen_model%d.h5' % e))
             discriminator.save(os.path.join(model_save_dir, 'dis_model%d.h5' % e))
+
+        if e == 1 or e % 5 == 0:
+            # plot_generated_images(output_dir, e, generator, y_test, X_test)
+            save_images(image_batch_lr, image_batch_hr, generator, path=os.path.join(output_dir, "img_epoch{}".format(e)))
+
