@@ -4,8 +4,34 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
+from numpy.random import randint
 
 plt.switch_backend('agg')
+
+
+def save_images(low_resolution_image, original_image, generator, path):
+    """
+    Save images in a single figure
+    """
+
+    examples = original_image.shape[0]
+    print(examples)
+    value = randint(0, examples)
+
+    gen_img = generator.predict(low_resolution_image)
+
+    fig = plt.figure(figsize=(20,20))
+    ax1 = fig.add_subplot(1, 3, 1)
+    plt.imshow(low_resolution_image[value], ax=ax1, title='Low resolution image')
+
+    ax2 = fig.add_subplot(1, 3, 2)
+    plt.imshow(original_image[value], ax=ax2, title='High resolution image')
+
+    ax3 = fig.add_subplot(1, 3, 3)
+    plt.imshow(gen_img[value], ax=ax3, title='Super-resolution image')
+
+    plt.savefig(path)
+
 
 def save_train_test_split(image_splits_list, save_dir):
 
