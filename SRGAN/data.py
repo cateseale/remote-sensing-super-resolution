@@ -33,13 +33,11 @@ class CATESR:
         img_list_HR = natsorted(glob(os.path.join(self._hr_images_dir(), '*.png')))
         img_list_LR = natsorted(glob(os.path.join(self._lr_images_dir(), '*.png')))
 
-        ids_HR = list(map(lambda sub: int(''.join([ele for ele in sub if ele.isnumeric()])), img_list_HR))
-        ids_HR_fix = [number[1:] for number in ids_HR]
-        ids_LR = list(map(lambda sub: int(''.join([ele for ele in sub if ele.isnumeric()])), img_list_LR))
-        ids_LR_fix = [number[1:] for number in ids_LR]
+        ids_HR = list(map(lambda sub: int(''.join([ele for ele in sub if ele.isnumeric()])), [i[30:] for i in img_list_HR]))
+        ids_LR = list(map(lambda sub: int(''.join([ele for ele in sub if ele.isnumeric()])), [i[30:] for i in img_list_LR]))
 
-        if functools.reduce(lambda i, j: i and j, map(lambda m, k: m == k, ids_HR_fix, ids_LR_fix), True):
-            return ids_HR_fix
+        if functools.reduce(lambda i, j: i and j, map(lambda m, k: m == k, ids_HR, ids_LR), True):
+            return ids_HR
         else:
             raise ValueError("HR images and LR images are not identical")
 
