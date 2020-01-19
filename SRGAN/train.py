@@ -176,8 +176,8 @@ class SrganTrainer:
             pls_metric(pl)
             dls_metric(dl)
 
-            if step % 1 == 0:
-            # if step % 50 == 0:
+            # if step % 1 == 0:
+            if step % 50 == 0:
                 print(f'{step}/{steps}, perceptual loss = {pls_metric.result():.4f}, discriminator loss = {dls_metric.result():.4f}')
 
                 log_metric("GAN perceptual loss", float(f'{pls_metric.result():.4f}'))
