@@ -24,17 +24,17 @@ if __name__ == "__main__":
                           caches_dir='/home/ec2-user/gan/data/caches_rgb')
 
 
-    train_ds = catesr_train.dataset(batch_size=64, random_transform=True, shuffle_buffer_size=500)
-    valid_ds = catesr_valid.dataset(batch_size=64, random_transform=True, shuffle_buffer_size=500)
+    train_ds = catesr_train.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
+    valid_ds = catesr_valid.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
 
 
     # First train the generator
     pre_trainer = SrganGeneratorTrainer(model=generator(), checkpoint_dir=f'.ckpt/pre_generator')
     pre_trainer.train(train_ds,
                       valid_ds.take(10),
-                      steps=2,
+                      steps=100000,
                       evaluate_every=1000,
-                      save_best_only=False)
+                      save_best_only=True)
 
     pre_trainer.model.save_weights(weights_file('pre_generator.h5'))
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     gan_generator.load_weights(weights_file('pre_generator.h5'))
 
     gan_trainer = SrganTrainer(generator=gan_generator, discriminator=discriminator())
-    gan_trainer.train(train_ds, steps=2)
+    gan_trainer.train(train_ds, steps=100000)
 
     gan_trainer.generator.save_weights(weights_file('gan_generator.h5'))
     gan_trainer.discriminator.save_weights(weights_file('gan_discriminator.h5'))
