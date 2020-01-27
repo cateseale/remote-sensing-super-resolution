@@ -107,7 +107,7 @@ def train(train_ds, val_ds, EPOCHS=5):
 
     TRAIN_LENGTH = len(list(train_ds))
     BATCH_SIZE = 64
-    BUFFER_SIZE = 100
+    BUFFER_SIZE = 1000
     STEPS_PER_EPOCH = TRAIN_LENGTH // BATCH_SIZE
 
     train_ds_normalised = train_ds.map(normalize)
@@ -131,11 +131,10 @@ def train(train_ds, val_ds, EPOCHS=5):
     return model_history, model
 
 
-
 if __name__ == "__main__":
 
-    # data_dir = '/home/ec2-user/gan/data/houston'
-    data_dir = '/Users/cate/data/gans/data_prep/houston'
+    data_dir = '/home/ec2-user/gan/data/houston'
+    # data_dir = '/Users/cate/data/gans/data_prep/houston'
 
 
     X_train = np.load(os.path.join(data_dir, 'train', 'houston_Xtrain.npy'))
@@ -145,9 +144,9 @@ if __name__ == "__main__":
 
     train_dataset, val_dataset = load_data(X_train, y_train, X_val, y_val)
 
-    history, trained_model = train(train_dataset, val_dataset, EPOCHS=2)
+    history, trained_model = train(train_dataset, val_dataset, EPOCHS=1)
 
     trained_model.save(os.path.join(data_dir, 'models', 'cnn_model.h5'))
 
-    with open(os.path.join(data_dir, 'results', 'trainHistoryDict', 'wb')) as file_pi:
+    with open(os.path.join(data_dir, 'results', 'trainHistoryDict'), 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
