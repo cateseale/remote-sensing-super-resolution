@@ -114,7 +114,7 @@ def train(train_ds, val_ds, EPOCHS=5):
 
     train_dataset = train_ds_normalised.cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
     train_dataset = train_dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
-    test_dataset = val_ds.batch(BATCH_SIZE)
+    test_dataset = val_ds.batch(BATCH_SIZE).repeat()
 
     VAL_SUBSPLITS = 5
     VALIDATION_STEPS = len(list(val_ds)) // BATCH_SIZE // VAL_SUBSPLITS
