@@ -36,9 +36,9 @@ def calculate_metrics(high_res_dir, super_dir):
 if __name__ == "__main__":
 
     hr_images_dir = '/Users/cate/data/gans/images_rgb/test/high'
-    # sr_images_dir = '/Users/cate/data/gans/results/test_images_pretrained_SRGAN/resolved_SRResNet'
+    sr_images_dir = '/Users/cate/data/gans/results/test_images_pretrained_SRGAN/resolved_SRResNet'
     # sr_images_dir = '/Users/cate/data/gans/results/test_images_pretrained_SRGAN/resolved_SRGAN'
-    sr_images_dir = '/Users/cate/data/gans/results/test_images_bicubic'
+    # sr_images_dir = '/Users/cate/data/gans/results/test_images_bicubic'
 
     psnr, ssim = calculate_metrics(hr_images_dir, sr_images_dir)
 
