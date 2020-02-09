@@ -40,8 +40,8 @@ if __name__ == "__main__":
     # PSNR has improved.
     trainer.train(train_ds,
                   valid_ds.take(20),
-                  steps=3,
-                  evaluate_every=1,
+                  steps=300000,
+                  evaluate_every=1000,
                   save_best_only=True)
 
     # Restore from checkpoint with highest PSNR
@@ -60,4 +60,4 @@ if __name__ == "__main__":
 
     # Fine-tune EDSR model via SRGAN training.
     gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
-    gan_trainer.train(train_ds, steps=2)
+    gan_trainer.train(train_ds, steps=200000)
