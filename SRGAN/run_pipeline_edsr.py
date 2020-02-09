@@ -16,11 +16,17 @@ if __name__ == "__main__":
 
     os.makedirs(weights_dir, exist_ok=True)
 
+    #
+    # catesr_train = CATESR(subset='train', images_dir='/Users/cate/data/gans/images_rgb',
+    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
+    # catesr_valid = CATESR(subset='valid', images_dir='/Users/cate/data/gans/images_rgb',
+    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
 
-    catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gan/data/images_rgb',
-                          caches_dir='/home/ec2-user/gan/data/caches_rgb')
-    catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gan/data/images_rgb',
-                          caches_dir='/home/ec2-user/gan/data/caches_rgb')
+
+    catesr_train = CATESR(subset='train', images_dir='/Users/cate/data/gans/images_rgb',
+                          caches_dir='/Users/cate/data/gans/caches_rgb')
+    catesr_valid = CATESR(subset='valid', images_dir='/Users/cate/data/gans/images_rgb',
+                          caches_dir='/Users/cate/data/gans/caches_rgb')
 
 
     train_ds = catesr_train.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
@@ -34,8 +40,8 @@ if __name__ == "__main__":
     # PSNR has improved.
     trainer.train(train_ds,
                   valid_ds.take(20),
-                  steps=300000,
-                  evaluate_every=1000,
+                  steps=3,
+                  evaluate_every=1,
                   save_best_only=True)
 
     # Restore from checkpoint with highest PSNR
@@ -54,4 +60,4 @@ if __name__ == "__main__":
 
     # Fine-tune EDSR model via SRGAN training.
     gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
-    gan_trainer.train(train_ds, steps=200000)
+    gan_trainer.train(train_ds, steps=2)
