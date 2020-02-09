@@ -3,7 +3,7 @@ import tensorflow as tf
 
 
 DIV2K_RGB_MEAN = np.array([0.4488, 0.4371, 0.4040]) * 255
-
+CATESR_RGB_MEAN = np.array([0.35477925248401515, 0.47896847616988203, 0.4342365797757899]) * 255
 
 def resolve_single(model, lr):
     return resolve(model, tf.expand_dims(lr, axis=0))[0]
@@ -32,11 +32,11 @@ def evaluate(model, dataset):
 # ---------------------------------------
 
 
-def normalize(x, rgb_mean=DIV2K_RGB_MEAN):
+def normalize(x, rgb_mean=CATESR_RGB_MEAN):
     return (x - rgb_mean) / 127.5
 
 
-def denormalize(x, rgb_mean=DIV2K_RGB_MEAN):
+def denormalize(x, rgb_mean=CATESR_RGB_MEAN):
     return x * 127.5 + rgb_mean
 
 
