@@ -1,9 +1,8 @@
 import os
 from data import CATESR
-
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
+from train import WdsrTrainer, SrganTrainer
 from model.wdsr import wdsr_b
+from model.srgan import discriminator
 
 
 if __name__ == "__main__":
@@ -32,15 +31,38 @@ if __name__ == "__main__":
     train_ds = catesr_train.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
     valid_ds = catesr_valid.dataset(batch_size=1, random_transform=False, repeat_count=1)
 
+    trainer = WdsrTrainer(model=wdsr_b(scale=scale, num_res_blocks=depth),
+                          checkpoint_dir=f'.ckpt/wdsr-b-{depth}-x{scale}')
+
+    # Train WDSR B model for 300,000 steps and evaluate model
+    # every 1000 steps on the first 10 images of the DIV2K
+    # validation set. Save a checkpoint only if evaluation
+    # PSNR has improved.
+    trainer.train(train_ds,
+                  valid_ds.take(10),
+                  steps=300000,
+                  evaluate_every=1000,
+                  save_best_only=True)
+
+    # Restore from checkpoint with highest PSNR
+    trainer.restore()
+
+    # Evaluate model on full validation set
+    psnr = trainer.evaluate(valid_ds)
+    print(f'PSNR = {psnr.numpy():3f}')
+
+    # Save weights to separate location (needed for demo)
+    trainer.model.save_weights(weights_file)
+
     # Custom WDSR B model (0.62M parameters)
-    model_wdsr = wdsr_b(scale=4, num_res_blocks=32)
+    generator = wdsr_b(scale=4, num_res_blocks=32)
+    generator.load_weights('weights/wdsr-32-x4/weights.h5')
 
-    # Adam optimizer with a scheduler that halfs learning rate after 200,000 steps
-    optim_wdsr = Adam(learning_rate=PiecewiseConstantDecay(boundaries=[200000], values=[1e-3, 5e-4]))
+    train_ds_small_batch = catesr_train.dataset(batch_size=4, random_transform=True, shuffle_buffer_size=500)
 
-    # Compile and train model for 300,000 steps with L1 pixel loss
-    model_wdsr.compile(optimizer=optim_wdsr, loss='mean_absolute_error')
-    model_wdsr.fit(train_ds, epochs=300, steps_per_epoch=1000)
+    # Fine-tune EDSR model via SRGAN training.
+    gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
+    gan_trainer.train(train_ds_small_batch, steps=200000)
 
-    # Save weights
-    model_wdsr.save_weights(os.path.join(weights_dir, 'weights-wdsr-b-32-x4.h5'))
+    new_weights_file = os.path.join(weights_dir, 'weights_fine_tuned.h5')
+    generator.save_weights(new_weights_file)
