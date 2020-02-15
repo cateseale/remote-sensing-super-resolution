@@ -61,3 +61,6 @@ if __name__ == "__main__":
     # Fine-tune EDSR model via SRGAN training.
     gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
     gan_trainer.train(train_ds, steps=200000)
+
+    new_weights_file = os.path.join(weights_dir, 'weights_fine_tuned.h5')
+    generator.save_weights(new_weights_file)
