@@ -17,16 +17,16 @@ if __name__ == "__main__":
     os.makedirs(weights_dir, exist_ok=True)
 
 
-    catesr_train = CATESR(subset='train', images_dir='/Users/cate/data/gans/images_rgb',
-                          caches_dir='/Users/cate/data/gans/caches_rgb')
-    catesr_valid = CATESR(subset='valid', images_dir='/Users/cate/data/gans/images_rgb',
-                          caches_dir='/Users/cate/data/gans/caches_rgb')
+    # catesr_train = CATESR(subset='train', images_dir='/Users/cate/data/gans/images_rgb',
+    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
+    # catesr_valid = CATESR(subset='valid', images_dir='/Users/cate/data/gans/images_rgb',
+    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
 
 
-    # catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gan/data/images_rgb',
-    #                       caches_dir='/home/ec2-user/gan/data/caches_rgb')
-    # catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gan/data/images_rgb',
-    #                       caches_dir='/home/ec2-user/gan/data/caches_rgb')
+    catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gan/data/images_rgb',
+                          caches_dir='/home/ec2-user/gan/data/caches_rgb')
+    catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gan/data/images_rgb',
+                          caches_dir='/home/ec2-user/gan/data/caches_rgb')
 
     train_ds = catesr_train.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
     valid_ds = catesr_valid.dataset(batch_size=1, random_transform=False, repeat_count=1)
