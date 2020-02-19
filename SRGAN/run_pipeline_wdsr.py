@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # Custom WDSR B model (0.62M parameters)
     generator = wdsr_b(scale=4, num_res_blocks=32)
-    generator.load_weights('weights/wdsr-32-x4/weights.h5')
+    generator.load_weights('weights/wdsr-32-x4/weights_fine_tuned.h5')
 
     train_ds_small_batch = catesr_train.dataset(batch_size=4, random_transform=True, shuffle_buffer_size=500)
 
@@ -64,5 +64,5 @@ if __name__ == "__main__":
     gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
     gan_trainer.train(train_ds_small_batch, steps=100000)
 
-    new_weights_file = os.path.join(weights_dir, 'weights_fine_tuned.h5')
+    new_weights_file = os.path.join(weights_dir, 'weights_fine_tuned_200000_steps.h5')
     generator.save_weights(new_weights_file)
