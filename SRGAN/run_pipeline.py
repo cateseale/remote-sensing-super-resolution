@@ -33,7 +33,7 @@ if __name__ == "__main__":
     generator_model = generator()
     generator_model.load_weights(os.path.join(weights_dir, 'pretrained_gan_generator.h5'))
 
-    pre_trainer = SrganGeneratorTrainer(model=generator_model, checkpoint_dir=f'.ckpt/pre_generator')
+    pre_trainer = SrganGeneratorTrainer(model=generator_model, checkpoint_dir='.ckpt/pre_generator')
     pre_trainer.train(train_ds,
                       valid_ds.take(100),
                       steps=100000,
