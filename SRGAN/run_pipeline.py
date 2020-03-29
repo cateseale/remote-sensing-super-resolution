@@ -2,7 +2,7 @@ import os
 from data import CATESR
 from model.srgan import generator, discriminator
 from train import SrganTrainer, SrganGeneratorTrainer
-
+import mlflow
 
 if __name__ == "__main__":
 
@@ -29,9 +29,13 @@ if __name__ == "__main__":
 
 
     # First train the generator
-    pre_trainer = SrganGeneratorTrainer(model=generator(), checkpoint_dir=f'.ckpt/pre_generator')
+
+    generator_model = generator()
+    generator_model.load_weights(os.path.join(weights_dir, 'pretrained_gan_generator.h5'))
+
+    pre_trainer = SrganGeneratorTrainer(model=generator_model, checkpoint_dir=f'.ckpt/pre_generator')
     pre_trainer.train(train_ds,
-                      valid_ds.take(10),
+                      valid_ds.take(100),
                       steps=100000,
                       evaluate_every=1000,
                       save_best_only=True)
@@ -44,7 +48,7 @@ if __name__ == "__main__":
     gan_generator.load_weights(weights_file('pre_generator.h5'))
 
     gan_trainer = SrganTrainer(generator=gan_generator, discriminator=discriminator())
-    gan_trainer.train(train_ds, steps=100000)
+    gan_trainer.train(train_ds, steps=200000)
 
     gan_trainer.generator.save_weights(weights_file('gan_generator.h5'))
     gan_trainer.discriminator.save_weights(weights_file('gan_discriminator.h5'))
