@@ -295,7 +295,7 @@ def random_rotate(lr_img, hr_img):
 
 
 def download_archive(file, target_dir, extract=True):
-    source_url = f'http://data.vision.ee.ethz.ch/cvl/DIV2K/{file}'
+    source_url = 'http://data.vision.ee.ethz.ch/cvl/DIV2K/{0}'.format(file)
     target_dir = os.path.abspath(target_dir)
     tf.keras.utils.get_file(file, source_url, cache_subdir=target_dir, extract=extract)
     os.remove(os.path.join(target_dir, file))
