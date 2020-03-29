@@ -80,23 +80,23 @@ class CATESR:
 
     def _hr_image_files(self):
         images_dir = self._hr_images_dir()
-        return [os.path.join(images_dir, f'img_{image_id}.png') for image_id in self.image_ids()]
+        return [os.path.join(images_dir, 'img_{0}.png'.format(image_id)) for image_id in self.image_ids()]
 
     def _lr_image_files(self):
         images_dir = self._lr_images_dir()
-        return [os.path.join(images_dir, f'img_{image_id}.png') for image_id in self.image_ids()]
+        return [os.path.join(images_dir, 'img_{0}.png'.format(image_id)) for image_id in self.image_ids()]
 
     def _hr_cache_file(self):
-        return os.path.join(self.caches_dir, f'CATESR_{self.subset}_HR.cache')
+        return os.path.join(self.caches_dir, 'CATESR_{self.subset}_HR.cache')
 
     def _lr_cache_file(self):
-        return os.path.join(self.caches_dir, f'CATESR_{self.subset}_LR.cache')
+        return os.path.join(self.caches_dir, 'CATESR_{self.subset}_LR.cache')
 
     def _hr_cache_index(self):
-        return f'{self._hr_cache_file()}.index'
+        return '{0}.index'.format(self._hr_cache_file())
 
     def _lr_cache_index(self):
-        return f'{self._lr_cache_file()}.index'
+        return '{0}.index'.format(self._lr_cache_file())
 
     @staticmethod
     def _images_dataset(image_files):
@@ -107,9 +107,9 @@ class CATESR:
 
     @staticmethod
     def _populate_cache(ds, cache_file):
-        print(f'Caching decoded images in {cache_file} ...')
+        print('Caching decoded images in {0} ...'.format(cache_file))
         for _ in ds: pass
-        print(f'Cached decoded images in {cache_file}.')
+        print('Cached decoded images in {0}.'.format(cache_file))
 
 
 
