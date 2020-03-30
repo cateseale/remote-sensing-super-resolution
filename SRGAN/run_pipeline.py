@@ -2,7 +2,6 @@ import os
 from data import CATESR
 from model.srgan import generator, discriminator
 from train import SrganTrainer, SrganGeneratorTrainer
-import mlflow
 
 if __name__ == "__main__":
 
@@ -18,10 +17,10 @@ if __name__ == "__main__":
     #                       caches_dir='/Users/cate/data/gans/caches_rgb')
 
 
-    catesr_train = CATESR(subset='train', images_dir='/home/paperspace/data/images_rgb',
-                          caches_dir='/home/paperspace/data/caches_rgb')
-    catesr_valid = CATESR(subset='valid', images_dir='/home/paperspace/data/images_rgb',
-                          caches_dir='/home/paperspace/data/caches_rgb')
+    catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gan/data/images_rgb',
+                          caches_dir='/home/ec2-user/gan/data/caches_rgb')
+    catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gan/data/images_rgb',
+                          caches_dir='/home/ec2-user/gan/data/caches_rgb')
 
 
     train_ds = catesr_train.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
