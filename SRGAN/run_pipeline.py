@@ -27,19 +27,19 @@ if __name__ == "__main__":
     valid_ds = catesr_valid.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
 
 
-    # First train the generator
-
-    generator_model = generator()
-    generator_model.load_weights(os.path.join(weights_dir, 'pretrained_gan_generator.h5'))
-
-    pre_trainer = SrganGeneratorTrainer(model=generator_model, checkpoint_dir='.ckpt/pre_generator')
-    pre_trainer.train(train_ds,
-                      valid_ds.take(100),
-                      steps=100000,
-                      evaluate_every=1000,
-                      save_best_only=True)
-
-    pre_trainer.model.save_weights(weights_file('pre_generator.h5'))
+    # # First train the generator
+    #
+    # generator_model = generator()
+    # generator_model.load_weights(os.path.join(weights_dir, 'pretrained_gan_generator.h5'))
+    #
+    # pre_trainer = SrganGeneratorTrainer(model=generator_model, checkpoint_dir='.ckpt/pre_generator')
+    # pre_trainer.train(train_ds,
+    #                   valid_ds.take(100),
+    #                   steps=100000,
+    #                   evaluate_every=1000,
+    #                   save_best_only=True)
+    #
+    # pre_trainer.model.save_weights(weights_file('pre_generator.h5'))
 
 
     # Generator fine - tuning(GAN)
