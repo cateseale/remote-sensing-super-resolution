@@ -17,9 +17,9 @@ if __name__ == "__main__":
     #                       caches_dir='/Users/cate/data/gans/caches_rgb')
 
 
-    catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gan/data/images_rgb',
+    catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gans/data/images_rgb',
                           caches_dir='/home/ec2-user/gans/data/caches_rgb')
-    catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gan/data/images_rgb',
+    catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gans/data/images_rgb',
                           caches_dir='/home/ec2-user/gans/data/caches_rgb')
 
 
