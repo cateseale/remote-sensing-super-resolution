@@ -23,7 +23,7 @@ if __name__ == "__main__":
                           caches_dir='/home/ec2-user/gans/data/caches_rgb')
 
 
-    train_ds = catesr_train.dataset(batch_size=16, random_transform=True, shuffle_buffer_size=500)
+    train_ds = catesr_train.dataset(batch_size=8, random_transform=True, shuffle_buffer_size=500)
     valid_ds = catesr_valid.dataset(batch_size=1, random_transform=False, repeat_count=1)
 
 
