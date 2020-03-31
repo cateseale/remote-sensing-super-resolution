@@ -59,11 +59,11 @@ if __name__ == "__main__":
 
     # Create EDSR generator and init with pre-trained weights
     generator = edsr(scale=4, num_res_blocks=16)
-    generator.load_weights('weights/edsr-16-x4/weights.h5')
+    generator.load_weights('weights/edsr/weights.h5')
 
     # Fine-tune EDSR model via SRGAN training.
     gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
     gan_trainer.train(train_ds, steps=200000)
 
-    new_weights_file = os.path.join(weights_dir, 'weights_fine_tuned_50000_steps.h5')
+    new_weights_file = os.path.join(weights_dir, 'weights_fine_tuned_200000_steps.h5')
     generator.save_weights(new_weights_file)
