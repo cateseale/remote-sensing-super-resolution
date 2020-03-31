@@ -11,7 +11,7 @@ if __name__ == "__main__":
     scale = 4    # Super-resolution factor
 
     # Location of model weights (needed for demo)
-    weights_dir = f'weights/edsr-{depth}-x{scale}'
+    weights_dir = 'weights/edsr'
     weights_file = os.path.join(weights_dir, 'weights.h5')
 
     os.makedirs(weights_dir, exist_ok=True)
