@@ -62,7 +62,7 @@ if __name__ == "__main__":
     generator = wdsr_b(scale=4, num_res_blocks=32)
     generator.load_weights('weights/wdsr/weights.h5')
 
-    train_ds_small_batch = catesr_train.dataset(batch_size=4, random_transform=True, shuffle_buffer_size=500)
+    train_ds_small_batch = catesr_train.dataset(batch_size=1, random_transform=True, shuffle_buffer_size=500)
 
     # Fine-tune EDSR model via SRGAN training.
     gan_trainer = SrganTrainer(generator=generator, discriminator=discriminator())
