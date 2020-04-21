@@ -2,7 +2,6 @@ import numpy as np
 import tensorflow as tf
 
 
-DIV2K_RGB_MEAN = np.array([0.4488, 0.4371, 0.4040]) * 255
 CATESR_RGB_MEAN = np.array([0.35477925248401515, 0.47896847616988203, 0.4342365797757899]) * 255
 
 def resolve_single(model, lr):
@@ -55,18 +54,8 @@ def denormalize_m11(x):
     return (x + 1) * 127.5
 
 
-# ---------------------------------------
-#  Metrics
-# ---------------------------------------
-
-
 def psnr(x1, x2):
     return tf.image.psnr(x1, x2, max_val=255)
-
-
-# ---------------------------------------
-#  See https://arxiv.org/abs/1609.05158
-# ---------------------------------------
 
 
 def pixel_shuffle(scale):
