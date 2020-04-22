@@ -53,15 +53,12 @@ if __name__ == "__main__":
     pre_generator = generator()
     gan_generator = generator()
 
-    # Location of model weights (needed for demo)
-    # weights_dir = 'weights/srgan'
-    # weights_file = lambda filename: os.path.join(weights_dir, filename)
-    #
-    # pre_generator.load_weights(weights_file('pre_generator.h5'))
-    # gan_generator.load_weights(weights_file('gan_generator.h5'))
+    # Location of model weights
+    weights_dir = 'weights/srgan'
+    weights_file = lambda filename: os.path.join(weights_dir, filename)
 
-    # pre_generator.load_weights('/Users/cate/data/gans/aws/weights/srgan_gen_trained_for_100K_GAN_trained_for_100K/pre_generator.h5')
-    # gan_generator.load_weights('/Users/cate/data/gans/aws/weights/srgan_gen_trained_for_100K_GAN_trained_for_100K/gan_generator.h5')
+    pre_generator.load_weights(weights_file('pre_generator.h5'))
+    gan_generator.load_weights(weights_file('gan_generator.h5'))
 
     pre_generator.load_weights('/Users/cate/git/remote-sensing-super-resolution/SRGAN/weights/srgan/pre_generator.h5')
     gan_generator.load_weights('/Users/cate/git/remote-sensing-super-resolution/SRGAN/weights/srgan/gan_generator.h5')
@@ -70,12 +67,8 @@ if __name__ == "__main__":
     lr_image_dir = '/Users/cate/data/gans/images_rgb/test/low/'
     hr_image_dir = '/Users/cate/data/gans/images_rgb/test/high/'
 
-    # lr_image_dir = '/Users/cate/data/gans/data_prep/houston_prep/delete/images_rgb_64x64'
-    # hr_image_dir = '/Users/cate/data/gans/data_prep/houston_prep/delete/images_rgb_64x64'
-
     # Dir to save the results
-    test_sve_dir = '/Users/cate/data/gans/results/test_no_training'
-    # test_sve_dir = '/Users/cate/data/gans/results/test_images_pretrained_SRGAN'
-    # test_sve_dir = '/Users/cate/data/gans/data_prep/houston/test_images_sr_pretrained_SRGAN'
+    test_sve_dir = '/Users/cate/data/gans/results/test_images_pretrained_SRGAN'
+
 
     plot_test_images(lr_image_dir, hr_image_dir, test_sve_dir)
