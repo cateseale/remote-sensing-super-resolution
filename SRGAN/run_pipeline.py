@@ -11,12 +11,6 @@ if __name__ == "__main__":
 
     os.makedirs(weights_dir, exist_ok=True)
 
-    # catesr_train = CATESR(subset='train', images_dir='/Users/cate/data/gans/images_rgb',
-    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
-    # catesr_valid = CATESR(subset='valid', images_dir='/Users/cate/data/gans/images_rgb',
-    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
-
-
     catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gans/data/images_rgb',
                           caches_dir='/home/ec2-user/gans/data/caches_rgb')
     catesr_valid = CATESR(subset='valid', images_dir='/home/ec2-user/gans/data/images_rgb',

@@ -10,18 +10,11 @@ if __name__ == "__main__":
     depth = 32    # Number of residual blocks
     scale = 4    # Super-resolution factor
 
-    # Location of model weights (needed for demo)
+    # Location of model weights
     weights_dir = 'weights/wdsr'
     weights_file = os.path.join(weights_dir, 'weights.h5')
 
     os.makedirs(weights_dir, exist_ok=True)
-
-
-    # catesr_train = CATESR(subset='train', images_dir='/Users/cate/data/gans/images_rgb',
-    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
-    # catesr_valid = CATESR(subset='valid', images_dir='/Users/cate/data/gans/images_rgb',
-    #                       caches_dir='/Users/cate/data/gans/caches_rgb')
-
 
     catesr_train = CATESR(subset='train', images_dir='/home/ec2-user/gans/data/images_rgb',
                           caches_dir='/home/ec2-user/gans/data/caches_rgb')
@@ -38,10 +31,7 @@ if __name__ == "__main__":
     trainer = WdsrTrainer(model=generator_model,
                           checkpoint_dir=f'.ckpt/wdsr-b-{depth}-x{scale}')
 
-    # Train WDSR B model for 300,000 steps and evaluate model
-    # every 1000 steps on the first 10 images of the DIV2K
-    # validation set. Save a checkpoint only if evaluation
-    # PSNR has improved.
+    # Train WDSR B model for 300,000 steps. Save a checkpoint only if evaluation PSNR has improved.
     trainer.train(train_ds,
                   valid_ds.take(100),
                   steps=300000,
@@ -55,7 +45,7 @@ if __name__ == "__main__":
     psnr = trainer.evaluate(valid_ds)
     print(f'PSNR = {psnr.numpy():3f}')
 
-    # Save weights to separate location (needed for demo)
+    # Save weights to separate location
     trainer.model.save_weights(weights_file)
 
     # Custom WDSR B model (0.62M parameters)
